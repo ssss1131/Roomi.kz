@@ -1,3 +1,37 @@
 spring:
   application:
     name: roomi
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/roomi}
+    username: ${DB_USERNAME:roomi}
+    password: ${DB_PASSWORD:roomi}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: update
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+
+app:
+  jwt:
+    secret: ${JWT_SECRET:dev-secret-change-me-please-at-least-32-bytes}
+    ttl: ${JWT_TTL:1h}
+  mail:
+    enabled: ${MAIL_ENABLED:false}
+    from: ${MAIL_FROM:Roomi.kz <no-reply@roomi.kz>}
+    confirm-url: ${CONFIRM_URL:http://localhost:5173/confirm}
+  cors:
+    origins: ${CORS_ORIGINS:http://localhost:5173,http://localhost:3000}

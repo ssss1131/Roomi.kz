@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: roomi-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: roomi
+      POSTGRES_USER: roomi
+      POSTGRES_PASSWORD: roomi
+    ports:
+      - "5432:5432"
+    volumes:
+      - roomi-pgdata:/var/lib/postgresql/data
+
+volumes:
+  roomi-pgdata:
