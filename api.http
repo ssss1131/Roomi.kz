@@ -1,0 +1,49 @@
+@host = http://localhost:8080
+@email = student@example.com
+@password = password123
+
+### Register
+POST {{host}}/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "{{email}}",
+  "password": "{{password}}"
+}
+
+### Register with invalid data (400)
+POST {{host}}/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "not-an-email",
+  "password": "short"
+}
+
+### Confirm email (take the token from the email or from the app log when MAIL_ENABLED=false)
+GET {{host}}/api/auth/confirm?token=PASTE_TOKEN_HERE
+
+### Resend confirmation email
+POST {{host}}/api/auth/resend
+Content-Type: application/json
+
+{
+  "email": "{{email}}"
+}
+
+### Login
+# @name login
+POST {{host}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{email}}",
+  "password": "{{password}}"
+}
+
+### Current user
+GET {{host}}/api/users/me
+Authorization: Bearer {{login.response.body.accessToken}}
+
+### Current user without token (401)
+GET {{host}}/api/users/me
