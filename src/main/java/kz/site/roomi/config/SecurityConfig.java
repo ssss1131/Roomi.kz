@@ -42,6 +42,10 @@ public class SecurityConfig {
 						.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 						.requestMatchers("/api/auth/**", "/error").permitAll()
 						.anyRequest().authenticated())
+				.oauth2ResourceServer(oauth -> oauth
+						.jwt(Customizer.withDefaults())
+						.authenticationEntryPoint(entryPoint)
+						.accessDeniedHandler(deniedHandler))
 				.exceptionHandling(ex -> ex
 						.authenticationEntryPoint(entryPoint)
 						.accessDeniedHandler(deniedHandler));

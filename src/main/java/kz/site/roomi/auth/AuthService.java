@@ -6,7 +6,9 @@ import java.time.Instant;
 import java.util.Base64;
 import java.util.Locale;
 
+import kz.site.roomi.auth.dto.LoginRequest;
 import kz.site.roomi.auth.dto.RegisterRequest;
+import kz.site.roomi.auth.dto.TokenResponse;
 import kz.site.roomi.common.ApiException;
 import kz.site.roomi.user.User;
 import kz.site.roomi.user.UserRepository;
@@ -25,14 +27,16 @@ public class AuthService {
 	private final VerificationTokenRepository tokens;
 	private final PasswordEncoder passwordEncoder;
 	private final MailService mailService;
+	private final JwtService jwtService;
 	private final SecureRandom random = new SecureRandom();
 
 	public AuthService(UserRepository users, VerificationTokenRepository tokens, PasswordEncoder passwordEncoder,
-			MailService mailService) {
+			MailService mailService, JwtService jwtService) {
 		this.users = users;
 		this.tokens = tokens;
 		this.passwordEncoder = passwordEncoder;
 		this.mailService = mailService;
+		this.jwtService = jwtService;
 	}
 
 	@Transactional
@@ -72,6 +76,17 @@ public class AuthService {
 					tokens.deleteAllByUser(user);
 					issueToken(user);
 				});
+	}
+
+	@Transactional(readOnly = true)
+	public TokenResponse login(LoginRequest request) {
+		User user = users.findByEmail(normalize(request.email()))
+				.filter(u -> passwordEncoder.matches(request.password(), u.getPasswordHash()))
+				.orElseThrow(() -> new ApiException(HttpStatus.UNAUTHORIZED, "Wrong email or password"));
+		if (!user.isEnabled()) {
+			throw new ApiException(HttpStatus.FORBIDDEN, "Please confirm your email");
+		}
+		return jwtService.issue(user);
 	}
 
 	private void issueToken(User user) {

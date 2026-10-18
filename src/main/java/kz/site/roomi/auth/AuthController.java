@@ -1,9 +1,11 @@
 package kz.site.roomi.auth;
 
 import jakarta.validation.Valid;
+import kz.site.roomi.auth.dto.LoginRequest;
 import kz.site.roomi.auth.dto.MessageResponse;
 import kz.site.roomi.auth.dto.RegisterRequest;
 import kz.site.roomi.auth.dto.ResendRequest;
+import kz.site.roomi.auth.dto.TokenResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -40,6 +42,11 @@ public class AuthController {
 	public MessageResponse resend(@Valid @RequestBody ResendRequest request) {
 		authService.resend(request.email());
 		return new MessageResponse("If this email is registered and not confirmed, a new confirmation link has been sent");
+	}
+
+	@PostMapping("/login")
+	public TokenResponse login(@Valid @RequestBody LoginRequest request) {
+		return authService.login(request);
 	}
 
 }
