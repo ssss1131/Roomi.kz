@@ -2,7 +2,7 @@ package kz.site.roomi.auth;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.hamcrest.Matchers.nullValue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -11,39 +11,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.List;
 
 import com.jayway.jsonpath.JsonPath;
+import kz.site.roomi.IntegrationTestSupport;
 import kz.site.roomi.user.User;
-import kz.site.roomi.user.UserRepository;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 
-@SpringBootTest
-class AuthFlowIntegrationTest {
-
-	@Autowired
-	private WebApplicationContext context;
-
-	@Autowired
-	private UserRepository users;
-
-	@Autowired
-	private VerificationTokenRepository tokens;
-
-	private MockMvc mvc;
-
-	@BeforeEach
-	void setUp() {
-		mvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
-		tokens.deleteAll();
-		users.deleteAll();
-	}
+class AuthFlowIntegrationTest extends IntegrationTestSupport {
 
 	@Test
 	void fullRegistrationConfirmationAndLoginFlow() throws Exception {
@@ -65,6 +40,11 @@ class AuthFlowIntegrationTest {
 		mvc.perform(get("/api/users/me").header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.email").value("student@example.com"))
+				.andExpect(jsonPath("$.profile.name").hasJsonPath())
+				.andExpect(jsonPath("$.profile.name").value(nullValue()))
+				.andExpect(jsonPath("$.profile.lookingForRoommate").value(false))
+				.andExpect(jsonPath("$.profile.contacts.telegram").hasJsonPath())
+				.andExpect(jsonPath("$.profile.habits.isTidy").hasJsonPath())
 				.andExpect(jsonPath("$.id").isNumber())
 				.andExpect(jsonPath("$.createdAt").isNotEmpty());
 

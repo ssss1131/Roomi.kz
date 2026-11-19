@@ -5,6 +5,9 @@ spring:
     url: jdbc:h2:mem:roomi;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH;DB_CLOSE_DELAY=-1
     username: sa
     password:
+  jackson:
+    deserialization:
+      accept-float-as-int: false
   jpa:
     open-in-view: false
     hibernate:

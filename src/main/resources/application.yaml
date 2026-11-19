@@ -5,6 +5,9 @@ spring:
     url: ${DB_URL:jdbc:postgresql://localhost:5432/roomi}
     username: ${DB_USERNAME:roomi}
     password: ${DB_PASSWORD:roomi}
+  jackson:
+    deserialization:
+      accept-float-as-int: false
   jpa:
     open-in-view: false
     hibernate:
@@ -32,6 +35,6 @@ app:
   mail:
     enabled: ${MAIL_ENABLED:false}
     from: ${MAIL_FROM:Roomi.kz <no-reply@roomi.kz>}
-    confirm-url: ${CONFIRM_URL:http://localhost:5173/confirm}
+    confirm-url: ${CONFIRM_URL:http://localhost:3000/confirm}
   cors:
     origins: ${CORS_ORIGINS:http://localhost:5173,http://localhost:3000}

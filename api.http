@@ -47,3 +47,85 @@ Authorization: Bearer {{login.response.body.accessToken}}
 
 ### Current user without token (401)
 GET {{host}}/api/users/me
+
+### Save profile
+PUT {{host}}/api/users/me
+Authorization: Bearer {{login.response.body.accessToken}}
+Content-Type: application/json
+
+{
+  "name": "Alex",
+  "gender": "male",
+  "contacts": { "telegram": "alex_almaty", "whatsapp": null, "phone": "+77011234567" },
+  "lookingForRoommate": true,
+  "about": "Quiet, studies a lot.",
+  "minPrice": 30000,
+  "maxPrice": 50000,
+  "habits": { "smokes": false, "hasPets": null, "isTidy": true }
+}
+
+### Room feed (public)
+GET {{host}}/api/rooms
+
+### Create room
+# @name createRoom
+POST {{host}}/api/rooms
+Authorization: Bearer {{login.response.body.accessToken}}
+Content-Type: application/json
+
+{
+  "city": "Almaty",
+  "region": "Almaly",
+  "approximateAddress": "Near the supermarket on 12th street",
+  "price": 45000,
+  "roomsCount": 3,
+  "floor": 4,
+  "bathroomsCount": 1,
+  "roommatesCount": 2,
+  "gender": "male",
+  "description": "Spacious flat, two roommates wanted.",
+  "rules": ["no_smoking", "keep_tidy"],
+  "otherRules": "Quiet after 11 pm",
+  "taken": false
+}
+
+### Room details
+GET {{host}}/api/rooms/{{createRoom.response.body.id}}
+Authorization: Bearer {{login.response.body.accessToken}}
+
+### Update room (owner)
+PUT {{host}}/api/rooms/{{createRoom.response.body.id}}
+Authorization: Bearer {{login.response.body.accessToken}}
+Content-Type: application/json
+
+{
+  "city": "Almaty",
+  "region": "Almaly",
+  "approximateAddress": "Near the supermarket on 12th street",
+  "price": 42000,
+  "roomsCount": 3,
+  "floor": 4,
+  "bathroomsCount": 1,
+  "roommatesCount": 2,
+  "gender": "male",
+  "description": "Spacious flat, two roommates wanted.",
+  "rules": ["no_smoking"],
+  "otherRules": null,
+  "taken": true
+}
+
+### My rooms
+GET {{host}}/api/users/me/rooms
+Authorization: Bearer {{login.response.body.accessToken}}
+
+### Delete room (owner)
+DELETE {{host}}/api/rooms/{{createRoom.response.body.id}}
+Authorization: Bearer {{login.response.body.accessToken}}
+
+### Roommates feed
+GET {{host}}/api/roommates
+Authorization: Bearer {{login.response.body.accessToken}}
+
+### Roommate public profile
+GET {{host}}/api/roommates/1
+Authorization: Bearer {{login.response.body.accessToken}}

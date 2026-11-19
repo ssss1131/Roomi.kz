@@ -23,7 +23,7 @@ The API starts on `http://localhost:8080`. PostgreSQL runs on `localhost:5432` (
 By default `MAIL_ENABLED=false`: emails are not sent, the confirmation link is printed to the application log:
 
 ```
-Mail disabled. Confirmation link for student@example.com: http://localhost:5173/confirm?token=...
+Mail disabled. Confirmation link for student@example.com: http://localhost:3000/confirm?token=...
 ```
 
 ## Tests
@@ -47,7 +47,7 @@ Tests use an in-memory H2 database (PostgreSQL mode) and do not need Docker.
 | `MAIL_USERNAME` | empty                                          | Gmail address used for SMTP login                   |
 | `MAIL_PASSWORD` | empty                                          | Gmail App Password (16 characters)                  |
 | `MAIL_FROM`     | `Roomi.kz <no-reply@roomi.kz>`                 | "From" header. For Gmail use your Gmail address     |
-| `CONFIRM_URL`   | `http://localhost:5173/confirm`                | Frontend page; `?token=...` is appended             |
+| `CONFIRM_URL`   | `http://localhost:3000/confirm`                | Frontend page; `?token=...` is appended             |
 | `CORS_ORIGINS`  | `http://localhost:5173,http://localhost:3000`  | Comma-separated allowed origins                     |
 
 Example:
@@ -80,7 +80,18 @@ All errors have the same format:
 | GET    | `/api/auth/confirm?token=...` | —      | —                     | `200 {message}`                                 | `400` link invalid, `400` link expired                          |
 | POST   | `/api/auth/resend`            | —      | `{email}`             | `200 {message}` (always, does not reveal email) | `400` validation                                                |
 | POST   | `/api/auth/login`             | —      | `{email, password}`   | `200 {accessToken, tokenType, expiresIn}`       | `400` validation, `401` wrong email or password, `403` not confirmed |
-| GET    | `/api/users/me`               | Bearer | —                     | `200 {id, email, createdAt}`                    | `401` no / invalid token                                        |
+| GET    | `/api/users/me`               | Bearer | —                     | `200 User` (with `profile`)                     | `401` no / invalid token                                        |
+| PUT    | `/api/users/me`               | Bearer | `Profile`             | `200 User`                                      | `400` validation, `401`                                         |
+| GET    | `/api/rooms`                  | —      | —                     | `200 {items: RoomSummary[]}` (not taken only)   | —                                                               |
+| GET    | `/api/rooms/{id}`             | Bearer | —                     | `200 RoomDetails`                               | `401`, `404` not found or taken (owner still sees it)           |
+| POST   | `/api/rooms`                  | Bearer | `RoomInput`           | `201 RoomDetails`                               | `400` validation, `401`, `409` profile incomplete               |
+| PUT    | `/api/rooms/{id}`             | Owner  | `RoomInput`           | `200 RoomDetails`                               | `400` validation, `401`, `403` not the owner, `404`             |
+| DELETE | `/api/rooms/{id}`             | Owner  | —                     | `204`                                           | `401`, `403` not the owner, `404`                               |
+| GET    | `/api/users/me/rooms`         | Bearer | —                     | `200 {items: MyRoomSummary[]}` (incl. taken)    | `401`                                                           |
+| GET    | `/api/roommates`              | Bearer | —                     | `200 {items: RoommateSummary[]}`                | `401`                                                           |
+| GET    | `/api/roommates/{userId}`     | Bearer | —                     | `200 PublicProfile`                             | `401`, `404` not found or not looking for a roommate            |
+
+The models (`User`, `Profile`, `RoomInput`, `RoomDetails`, ...) follow the frontend API contract ("Roomi API Contract").
 
 Rules:
 
@@ -88,5 +99,10 @@ Rules:
 - Password: 8–72 characters, stored as a BCrypt hash.
 - Confirmation token: random 32 bytes (base64url), valid for 24 hours. A new `resend` invalidates previous links.
 - JWT: `sub` = user id, `email` claim, issuer `roomi`. Send it as `Authorization: Bearer <token>`.
+- Enums are lowercase: gender `male` / `female`, rules `no_smoking`, `no_pets`, `keep_quiet`, `keep_tidy`.
+- Optional fields are always present in responses (`null` when empty). Request strings are trimmed, blank optional strings become `null`, unknown and read-only fields are ignored.
+- Profile: name, gender and at least one contact are required on every save. `minPrice` / `maxPrice` are both set or both empty. Field errors use dotted keys for nested fields, e.g. `contacts.telegram`, and `contacts` when no contact is given.
+- Rooms: `POST /api/rooms` returns `409` until the user has saved a profile. `viewsCount` grows by 1 on each `GET /api/rooms/{id}` by a logged-in user who is not the owner.
+- Ordering: rooms newest first, roommates highest user id first. `email` and `createdAt` are only returned by `GET /api/users/me`.
 
 Example requests are in [`api.http`](api.http) (IntelliJ HTTP Client / VS Code REST Client).
