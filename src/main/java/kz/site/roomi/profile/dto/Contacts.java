@@ -1,5 +1,6 @@
 package kz.site.roomi.profile.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.Pattern;
 import kz.site.roomi.common.Strings;
 import kz.site.roomi.profile.Profile;
@@ -25,6 +26,7 @@ public record Contacts(
 		return new Contacts(profile.getTelegram(), profile.getWhatsapp(), profile.getPhone());
 	}
 
+	@JsonIgnore
 	public boolean isEmpty() {
 		return telegram == null && whatsapp == null && phone == null;
 	}

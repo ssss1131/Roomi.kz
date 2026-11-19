@@ -1,6 +1,7 @@
 package kz.site.roomi.user;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -41,7 +42,7 @@ public class User {
 	@PrePersist
 	void onCreate() {
 		if (createdAt == null) {
-			createdAt = Instant.now();
+			createdAt = Instant.now().truncatedTo(ChronoUnit.MILLIS);
 		}
 	}
 

@@ -34,6 +34,7 @@ class ProfileIntegrationTest extends IntegrationTestSupport {
 				.andExpect(jsonPath("$.profile.contacts.telegram").value("alex_user"))
 				.andExpect(jsonPath("$.profile.contacts.whatsapp").value(nullValue()))
 				.andExpect(jsonPath("$.profile.contacts.phone").value("+77011234567"))
+				.andExpect(jsonPath("$.profile.contacts.empty").doesNotExist())
 				.andExpect(jsonPath("$.profile.lookingForRoommate").value(true))
 				.andExpect(jsonPath("$.profile.about").value(nullValue()))
 				.andExpect(jsonPath("$.profile.minPrice").value(30000))

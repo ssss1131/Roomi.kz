@@ -2,7 +2,7 @@ spring:
   application:
     name: roomi
   datasource:
-    url: ${DB_URL:jdbc:postgresql://localhost:5432/roomi}
+    url: ${DB_URL:jdbc:postgresql://localhost:5433/roomi}
     username: ${DB_USERNAME:roomi}
     password: ${DB_PASSWORD:roomi}
   jackson:

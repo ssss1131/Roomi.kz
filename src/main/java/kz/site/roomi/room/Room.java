@@ -1,6 +1,7 @@
 package kz.site.roomi.room;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
@@ -97,7 +98,7 @@ public class Room {
 	@PrePersist
 	void onCreate() {
 		if (publishedAt == null) {
-			publishedAt = Instant.now();
+			publishedAt = Instant.now().truncatedTo(ChronoUnit.MILLIS);
 		}
 	}
 
